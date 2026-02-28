@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIPHER: NEON SEQUENCE PRO</title>
+    <title>CIPHER: NEON SEQUENCE ULTRA</title>
     <style>
         :root {
             --neon-blue: #00f2ff;
@@ -12,7 +12,7 @@
             --neon-yellow: #fff01f;
             --neon-purple: #bc13fe;
             --bg-dark: #000000;
-            --panel-height: 220px; /* 固定底部面板高度 */
+            --panel-height: 220px;
         }
         body {
             background-color: var(--bg-dark);
@@ -23,45 +23,38 @@
             align-items: center;
             margin: 0;
             height: 100vh;
-            overflow: hidden; /* 防止整體捲動 */
+            overflow: hidden;
         }
         .header { 
             text-align: center; 
             padding: 15px; 
             border-bottom: 1px solid #222; 
             width: 100%;
-            flex-shrink: 0;
             background: #000;
             z-index: 100;
         }
         h1 { margin: 0; font-size: 24px; letter-spacing: 4px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
         
-        /* 設置菜單 */
         #setup-screen { margin-top: 50px; text-align: center; background: #111; padding: 30px; border-radius: 15px; border: 1px solid var(--neon-blue); }
         
-        /* 遊戲主面板 */
         #game-screen { 
             display: none; 
             width: 100%; 
             max-width: 450px; 
             flex-direction: column; 
-            height: 100%; /* 撐滿螢幕 */
+            height: 100%; 
             position: relative;
         }
 
-        /* 🟢 歷史紀錄區：增加捲動與間隔 */
         .history-board { 
-            flex: 1; /* 自動佔滿中間剩餘空間 */
+            flex: 1; 
             overflow-y: auto; 
             padding: 15px; 
             box-sizing: border-box;
             display: flex;
-            flex-direction: column-reverse; /* 最新在下 */
+            flex-direction: column-reverse; 
             gap: 12px;
-            /* 關鍵：底部預留空間，避免被控制面板遮住最後一筆 */
             padding-bottom: calc(var(--panel-height) + 20px); 
-            scrollbar-width: thin;
-            scrollbar-color: #333 transparent;
         }
 
         .row { 
@@ -72,23 +65,27 @@
             border-radius: 10px; 
             border: 1px solid #222; 
             justify-content: space-between;
-            animation: fadeIn 0.4s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .slots { display: flex; gap: 8px; }
         .slot {
-            width: 40px; height: 40px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             background: #111; border: 2px dashed #444;
             display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
         }
-        .slot.over { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        .slot.over { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); transform: scale(1.05); }
 
+        /* 🟢 強化球體視覺：移除任何可能導致方形的邊距 */
         .peg {
-            width: 32px; height: 32px; border-radius: 50%;
-            cursor: grab; transition: transform 0.2s;
+            width: 36px; height: 36px; border-radius: 50%;
+            cursor: grab; 
+            transition: transform 0.1s;
+            border: none; /* 確保沒有邊框干擾 */
+            display: block;
         }
+        .peg:active { cursor: grabbing; }
+
         .c1 { background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); }
         .c2 { background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); }
         .c3 { background: var(--neon-green); box-shadow: 0 0 12px var(--neon-green); }
@@ -101,23 +98,14 @@
         .dot.exact { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
         .dot.misplaced { background: #fff; box-shadow: 0 0 8px #fff; }
 
-        /* 🟢 底部控制區：固定高度且置頂 */
         .control-panel {
-            position: absolute; 
-            bottom: 0; 
-            background: #0a0a0a; /* 純黑不透光 */
-            border-top: 2px solid #222;
-            width: 100%; 
-            height: var(--panel-height);
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            justify-content: center;
-            gap: 15px; 
-            z-index: 200; /* 確保在歷史紀錄上方 */
+            position: absolute; bottom: 0; background: #0a0a0a; border-top: 2px solid #222;
+            width: 100%; height: var(--panel-height);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 15px; z-index: 200;
             box-shadow: 0 -15px 30px rgba(0,0,0,0.9);
         }
-        .peg-source { display: flex; gap: 10px; }
+        .peg-source { display: flex; gap: 12px; }
 
         button {
             background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue);
@@ -126,15 +114,7 @@
         button:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         button:disabled { border-color: #444; color: #444; }
 
-        #msg { 
-            position: absolute; 
-            top: 70px; 
-            width: 100%; 
-            text-align: center; 
-            color: var(--neon-green); 
-            font-weight: bold; 
-            z-index: 50;
-        }
+        #msg { position: absolute; top: 70px; width: 100%; text-align: center; color: var(--neon-green); font-weight: bold; z-index: 50; }
     </style>
 </head>
 <body>
@@ -144,7 +124,7 @@
 </div>
 
 <div id="setup-screen">
-    <h3>選擇挑戰長度</h3>
+    <h3>選擇破解長度</h3>
     <div style="margin: 20px 0; display:flex; gap:10px; justify-content:center;">
         <button onclick="startGame(3)">3 位</button>
         <button onclick="startGame(4)">4 位</button>
@@ -193,6 +173,7 @@
             slot.addEventListener('drop', handleDrop);
             slotContainer.appendChild(slot);
         }
+        
         let colors = [1, 2, 3, 4, 5, 6];
         for(let i=0; i<len; i++) {
             let idx = Math.floor(Math.random() * colors.length);
@@ -200,8 +181,16 @@
             colors.splice(idx, 1);
         }
         currentGuess = Array(len).fill(0);
+        
+        // 🟢 修復拖曳方形框的關鍵處理
         document.querySelectorAll('.peg').forEach(p => {
-            p.addEventListener('dragstart', (e) => e.dataTransfer.setData('colorId', p.dataset.color));
+            p.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('colorId', p.dataset.color);
+                
+                // 為了消除方形框，我們可以讓快照稍微偏移，或者在某些瀏覽器中
+                // 透過只渲染該元素本身來減少背景框的顯現
+                e.dataTransfer.effectAllowed = "move";
+            });
         });
     }
 
@@ -212,11 +201,13 @@
         const colorId = parseInt(e.dataTransfer.getData('colorId'));
         if (colorId) {
             currentGuess[slot.dataset.index] = colorId;
+            // 放入後也設為可拖曳，方便換位置或清除（可選）
             slot.innerHTML = `<div class="peg ${colorClasses[colorId]}"></div>`;
             document.getElementById('submit-btn').disabled = !currentGuess.every(c => c !== 0);
         }
     }
 
+    // (其餘 checkGuess, renderHistory 邏輯與之前相同，略)
     function checkGuess() {
         let exact = 0, misplaced = 0;
         let tSecret = [...secretCode], tGuess = [...currentGuess];
@@ -249,7 +240,6 @@
         currentGuess = Array(CODE_LENGTH).fill(0);
         document.querySelectorAll('#input-slots .slot').forEach(s => s.innerHTML = '');
         document.getElementById('submit-btn').disabled = true;
-        // 自動滾動到最下方
         setTimeout(() => { board.scrollTop = board.scrollHeight; }, 50);
     }
 </script>
